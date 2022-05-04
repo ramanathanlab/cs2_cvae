@@ -1,0 +1,61 @@
+train_input: &train_input
+  batch_size: 64
+  input_shape: [1, 256, 256]
+  tfrecord_shape: [1, 612, 612]
+  use_real_data: True
+  num_samples_per_epoch: 32000
+  input_transform: False
+  data_dir: './cvae_full'
+  data_random_seed:
+
+model: &model
+  # model params
+  enc_conv_kernels: [3, 3, 3, 3]
+  # Encoder filters define OUTPUT filters per layer
+  enc_conv_filters: [64, 64, 64, 32]
+  enc_conv_strides: [1, 2, 2, 1]
+  dec_conv_kernels: [3, 3, 3, 3]
+  # Decoder filters define INPUT filters per layer
+  dec_conv_filters: [32, 64, 64, 64]
+  dec_conv_strides: [1, 2, 2, 1]
+  dense_units: 128
+  latent_ndim: 3
+  mixed_precision: True
+  activation: "relu"
+  # Setting this to False as we do not support it.
+  full_precision_loss: False
+  deconv: True
+  variational: True
+  identity_normal_dist: False
+  reconstruction_loss_reduction_type: "sum"
+  kl_loss_reduction_type: "sum"
+  model_random_seed:
+
+optimizer: &optimizer
+  # optimizer params
+  epsilon: 1.0e-8
+  beta1: 0.2
+  beta2: 0.9
+  decay: 0.9
+  momentum: 0.9
+  optimizer_name: "rmsprop"
+  allowed_optimizers: ["sgd", "sgdm", "adam", "rmsprop"]
+  learning_rate: 2.0e-5
+  static_loss_scale: 1.0
+  loss_scale_type: "static"
+  initial_loss_scale: 1.0
+  steps_per_increase: 100
+  grad_accum_steps: 1
+
+runconfig: &runconfig
+  max_steps: &max_steps 500
+  eval_steps: 100
+  infer_steps: 100
+  save_summary_steps: 100
+  save_checkpoints_steps: *max_steps #only save at end of training
+  log_step_count_steps: 100
+  keep_checkpoint_max: 1
+  throttle_secs: 10
+  model_dir: 'model_dir'
+  mode: 'train'
+  cs_ip:
